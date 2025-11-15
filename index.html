@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>เข้าสู่ระบบ Facebook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(to bottom, #f0f2f5 0%, #f6f7f9 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: #1c1e21;
+            padding: 20px;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .logo {
+            color: #1877f2;
+            font-size: 52px;
+            font-weight: 700;
+            margin-bottom: 32px;
+            letter-spacing: -2px;
+        }
+        
+        .login-card {
+            background: #fff;
+            width: 100%;
+            max-width: 380px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .login-card h2 {
+            font-size: 24px;
+            font-weight: 400;
+            margin: 0 0 18px 0;
+            color: #1c1e21;
+        }
+        
+        .login-card form {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            margin: 6px 0;
+            border-radius: 6px;
+            border: 1px solid #dddfe2;
+            font-size: 16px;
+            background: #fafafa;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #1877f2;
+            background: #fff;
+        }
+        
+        input::placeholder {
+            color: #90949c;
+        }
+        
+        button.login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #1877f2;
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 8px 0 12px 0;
+            transition: background-color 0.2s;
+        }
+        
+        button.login-btn:hover {
+            background: #166fe5;
+        }
+        
+        .forgot-link {
+            margin-top: 16px;
+            font-size: 14px;
+        }
+        
+        .forgot-link a {
+            text-decoration: none;
+            color: #1877f2;
+            font-weight: 600;
+        }
+        
+        .forgot-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .divider {
+            height: 1px;
+            width: 100%;
+            background: #dadde1;
+            margin: 24px 0;
+        }
+        
+        .create-section {
+            text-align: center;
+            color: #1c1e21;
+            font-size: 14px;
+            line-height: 1.34;
+            margin-bottom: 16px;
+        }
+        
+        .create-section a {
+            color: #1c1e21;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .create-section a:hover {
+            text-decoration: underline;
+        }
+        
+        button.create-btn {
+            width: 100%;
+            max-width: 200px;
+            padding: 12px;
+            background: #42b72a;
+            border: none;
+            color: #fff;
+            font-size: 17px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        button.create-btn:hover {
+            background: #36a420;
+        }
+        
+        .footer {
+            margin-top: 32px;
+            text-align: center;
+            font-size: 12px;
+            color: #65676b;
+            max-width: 380px;
+        }
+        
+        .footer a {
+            color: #65676b;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .thai-flag {
+            display: inline-block;
+            width: 20px;
+            height: 14px;
+            background: linear-gradient(to bottom, 
+                #ed1c24 0%, #ed1c24 20%,
+                #ffffff 20%, #ffffff 40%,
+                #241d4f 40%, #241d4f 60%,
+                #ffffff 60%, #ffffff 80%,
+                #ed1c24 80%, #ed1c24 100%);
+            margin-right: 8px;
+            vertical-align: middle;
+            border-radius: 2px;
+        }
+        
+        .thai-language {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .success-message {
+            color: #42b72a;
+            font-weight: 600;
+            margin-top: 10px;
+            display: none;
+            padding: 10px;
+            background-color: #f0fff4;
+            border-radius: 6px;
+            border: 1px solid #c6f6d5;
+        }
+        
+        .error-message {
+            color: #e53e3e;
+            font-weight: 600;
+            margin-top: 10px;
+            display: none;
+            padding: 10px;
+            background-color: #fff5f5;
+            border-radius: 6px;
+            border: 1px solid #fed7d7;
+        }
+        
+        .loading {
+            display: none;
+            margin-top: 10px;
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1877f2;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .privacy-notice {
+            font-size: 12px;
+            color: #65676b;
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 42px;
+                margin-bottom: 24px;
+            }
+            
+            .login-card {
+                padding: 16px;
+            }
+            
+            body {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">facebook</div>
+        <div class="login-card">
+            <h2>เข้าสู่ระบบ Facebook</h2>
+            <div class="thai-language">
+                <span class="thai-flag"></span>
+                <span>ประเทศไทย</span>
+            </div>
+            <form id="loginForm">
+                <input type="text" id="email" placeholder="อีเมลหรือหมายเลขโทรศัพท์" required />
+                <input type="password" id="password" placeholder="รหัสผ่าน" required />
+                <button type="submit" class="login-btn">เข้าสู่ระบบ</button>
+            </form>
+            <div class="loading" id="loadingIndicator">
+                <div class="loading-spinner"></div>
+                <p>กำลังเข้าสู่ระบบ...</p>
+            </div>
+            <div class="success-message" id="successMessage">
+                เข้าสู่ระบบสำเร็จ!
+            </div>
+            <div class="error-message" id="errorMessage">
+                เกิดข้อผิดพลาด กรุณาลองอีกครั้ง
+            </div>
+            <div class="privacy-notice">
+                ข้อมูลของคุณจะได้รับการปกป้องตามนโยบายความเป็นส่วนตัวของเรา
+            </div>
+            <div class="forgot-link">
+                <a href="#">ลืมรหัสผ่าน?</a>
+            </div>
+        </div>
+        <div class="divider"></div>
+        <div class="create-section">
+            <p>ยังไม่มีบัญชี?</p>
+            <a href="#">สมัครใช้งาน Facebook</a>
+        </div>
+        <button class="create-btn">สร้างบัญชีใหม่</button>
+        <div class="footer">
+            <p>
+                <a href="#">ไทย</a> &#8226;
+                <a href="#">English (US)</a> &#8226;
+                <a href="#">中文(简体)</a>
+            </p>
+            <p>
+                <a href="#">เกี่ยวกับ</a> &#8226;
+                <a href="#">ช่วยเหลือ</a> &#8226;
+                <a href="#">นโยบายข้อมูล</a> &#8226;
+                <a href="#">นโยบายคุกกี้</a>
+            </p>
+            <p>Facebook &copy; 2025</p>
+        </div>
+    </div>
+
+    <script>
+        // Professional login form handling
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Basic validation
+            if (!email || !password) {
+                showMessage('errorMessage', 'กรุณากรอกอีเมลและรหัสผ่าน');
+                return;
+            }
+            
+            // Show loading indicator
+            document.getElementById('loadingIndicator').style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // Simulate authentication process
+            try {
+                // In a real application, this would be a secure API call to your backend
+                await simulateAuthentication(email, password);
+                
+                // Show success message
+                showMessage('successMessage', 'เข้าสู่ระบบสำเร็จ!');
+                
+                // Clear form
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+                
+            } catch (error) {
+                showMessage('errorMessage', 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+            } finally {
+                // Hide loading indicator
+                document.getElementById('loadingIndicator').style.display = 'none';
+            }
+        });
+        
+        // Helper function to show messages
+        function showMessage(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = 'block';
+            
+            // Auto-hide messages after 3 seconds
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Simulate authentication (replace with actual API call)
+        function simulateAuthentication(email, password) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    // This is a simulation - in reality, you would validate against your backend
+                    if (email && password.length >= 6) {
+                        resolve({ success: true });
+                    } else {
+                        reject(new Error('Authentication failed'));
+                    }
+                }, 1500);
+            });
+        }
+        
+        // Add click handler for create account button
+        document.querySelector('.create-btn').addEventListener('click', function() {
+            alert('คุณกำลังสร้างบัญชีใหม่');
+        });
+        
+        // Add privacy-focused enhancements
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Login page loaded securely');
+            
+            // Add security headers in a real application
+            // These would typically be set server-side
+        });
+    </script>
+</body>
+</html>
